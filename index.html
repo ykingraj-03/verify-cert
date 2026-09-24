@@ -3,30 +3,30 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Certificate Verification Portal</title>
+  <title>Official Certificate Verification Portal</title>
   <style>
     * { box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
-    body { background-color: #f4f6f8; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; padding: 20px; }
-    .card { background: #ffffff; max-width: 540px; width: 100%; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); padding: 32px; border-top: 6px solid #2563eb; }
+    body { background-color: #f1f5f9; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; padding: 20px; }
+    .card { background: #ffffff; max-width: 550px; width: 100%; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); padding: 32px; border-top: 6px solid #1e3a8a; }
     .badge { display: inline-block; padding: 6px 12px; border-radius: 999px; font-weight: 600; font-size: 0.85rem; text-transform: uppercase; margin-bottom: 16px; }
     .badge-valid { background: #dcfce7; color: #15803d; }
     .badge-invalid { background: #fee2e2; color: #b91c1c; }
-    h2 { margin: 0 0 8px 0; color: #1e293b; font-size: 1.5rem; }
-    .meta-row { display: flex; justify-content: space-between; border-bottom: 1px solid #e2e8f0; padding: 10px 0; font-size: 0.95rem; }
+    h2 { margin: 0 0 16px 0; color: #0f172a; font-size: 1.45rem; border-bottom: 2px solid #f1f5f9; padding-bottom: 10px; }
+    .meta-row { display: flex; justify-content: space-between; border-bottom: 1px solid #e2e8f0; padding: 9px 0; font-size: 0.95rem; }
     .meta-label { color: #64748b; font-weight: 500; }
     .meta-value { color: #0f172a; font-weight: 600; text-align: right; }
-    .curriculum { margin-top: 20px; background: #f8fafc; border-radius: 8px; padding: 16px; }
-    .curriculum h4 { margin: 0 0 10px 0; color: #334155; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 0.5px; }
-    .curriculum ul { margin: 0; padding-left: 20px; color: #475569; font-size: 0.9rem; line-height: 1.6; }
+    .curriculum { margin-top: 20px; background: #f8fafc; border-radius: 8px; padding: 16px; border: 1px solid #e2e8f0; }
+    .curriculum h4 { margin: 0 0 10px 0; color: #334155; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.5px; }
+    .curriculum ul { margin: 0; padding-left: 20px; color: #334155; font-size: 0.9rem; line-height: 1.6; }
     .search-box { margin-top: 20px; display: flex; gap: 8px; }
     .search-box input { flex: 1; padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px; }
-    .search-box button { background: #2563eb; color: #fff; border: none; padding: 10px 16px; border-radius: 6px; cursor: pointer; font-weight: 600; }
+    .search-box button { background: #1e3a8a; color: #fff; border: none; padding: 10px 16px; border-radius: 6px; cursor: pointer; font-weight: 600; }
   </style>
 </head>
 <body>
 
 <div class="card">
-  <div id="loader" style="color: #64748b;">Verifying certificate record...</div>
+  <div id="loader" style="color: #64748b; text-align: center;">Verifying credential against registry...</div>
   
   <div id="result" style="display: none;">
     <div id="statusBadge" class="badge"></div>
@@ -37,11 +37,19 @@
       <span class="meta-value" id="dispCertId"></span>
     </div>
     <div class="meta-row">
+      <span class="meta-label">Army No:</span>
+      <span class="meta-value" id="dispArmyNo"></span>
+    </div>
+    <div class="meta-row">
+      <span class="meta-label">Unit:</span>
+      <span class="meta-value" id="dispUnit"></span>
+    </div>
+    <div class="meta-row">
       <span class="meta-label">Issue Date:</span>
       <span class="meta-value" id="dispDate"></span>
     </div>
     <div class="meta-row">
-      <span class="meta-label">Grade / Performance:</span>
+      <span class="meta-label">Grading:</span>
       <span class="meta-value" id="dispGrade"></span>
     </div>
     
@@ -53,10 +61,10 @@
 
   <div id="notFound" style="display: none;">
     <div class="badge badge-invalid">Record Not Found</div>
-    <h3 style="margin-top:0; color:#1e293b;">Certificate Unverified</h3>
-    <p style="color:#64748b; font-size: 0.9rem;">No official record matches the supplied certificate identifier.</p>
+    <h3 style="margin-top:0; color:#1e293b;">Credential Unverified</h3>
+    <p style="color:#64748b; font-size: 0.9rem;">No official record matches the entered Certificate ID.</p>
     <div class="search-box">
-      <input type="text" id="manualInput" placeholder="Enter ID (e.g. CERT-2026-001)" />
+      <input type="text" id="manualInput" placeholder="e.g. CERT-2026-IT-001" />
       <button onclick="manualSearch()">Search</button>
     </div>
   </div>
@@ -101,11 +109,15 @@
         document.getElementById("statusBadge").innerText = cert.status || "Verified Authentic";
         document.getElementById("recipientName").innerText = cert.name;
         document.getElementById("dispCertId").innerText = cert.cert_id;
+        document.getElementById("dispArmyNo").innerText = cert.army_number || "—";
+        document.getElementById("dispUnit").innerText = cert.unit || "—";
         document.getElementById("dispDate").innerText = cert.issue_date;
         document.getElementById("dispGrade").innerText = cert.grade || "Completed";
 
         const curriculumList = document.getElementById("dispCurriculum");
         curriculumList.innerHTML = "";
+        
+        // Supports comma-separated or single curriculum entries
         const modules = cert.areas_covered.split(",");
         modules.forEach(m => {
           if (m.trim()) {
@@ -114,12 +126,13 @@
             curriculumList.appendChild(li);
           }
         });
+
         result.style.display = "block";
       } else {
         notFound.style.display = "block";
       }
     } catch (err) {
-      loader.innerText = "Error loading credential registry. Please check configuration.";
+      loader.innerText = "Error connecting to certificate registry. Please verify connection.";
     }
   }
 
